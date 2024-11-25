@@ -272,14 +272,35 @@ print(f"  Maximum Drawdown: {max_drawdown:.2f}")
 
 # Calculate S&P 500 Total Return
 spy_total_return = (spy_performance[-1] - spy_performance[0]) / spy_performance[0] * 100
+print(spy_performance)
 print(f"S&P 500 Total Return: {spy_total_return:.2f}%")
 
 # Plot portfolio vs S&P 500 performance
+# Baseline Portfolio Performance (Buy-and-Hold)
+baseline_final_balance = baseline_strategy(test_data, initial_balance=test_env.initial_balance)
+baseline_performance = [test_env.initial_balance]  # Start with initial balance
+
+# Calculate baseline performance over time
+shares_held = test_env.initial_balance / test_data.iloc[0]['MSFT_Close']
+for price in test_data['MSFT_Close']:
+    baseline_performance.append(shares_held * price)
+
+# Remove the last duplicate entry
+baseline_performance = baseline_performance[:-1]
+
+# Visualize DQN Agent, S&P 500, and Baseline Portfolio Performance
 plt.figure(figsize=(12, 6))
-plt.plot(net_worths, label='Agent Portfolio')
-plt.plot(spy_performance, label='S&P 500 (SPY)', linestyle='--')
+plt.plot(net_worths, label='DQN Agent Portfolio', color='green')
+plt.plot(spy_performance, label='S&P 500 (SPY)', linestyle='--', color='blue')
+plt.plot(baseline_performance, label='Baseline (Buy-and-Hold)', linestyle='-.', color='orange')
 plt.xlabel('Time Step')
 plt.ylabel('Portfolio Value')
-plt.title('Portfolio Performance vs S&P 500 Index')
+plt.title('Portfolio Performance Comparison: DQN Agent vs Baseline vs S&P 500')
 plt.legend()
 plt.show()
+
+# Print Metrics for Baseline Strategy
+baseline_total_return = (baseline_final_balance - test_env.initial_balance) / test_env.initial_balance * 100
+print(f"Baseline Buy-and-Hold Performance:")
+print(f"  Final Balance: {baseline_final_balance:.2f}")
+print(f"  Total Return: {baseline_total_return:.2f}%")
